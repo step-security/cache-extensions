@@ -1,0 +1,44 @@
+name: Update brew tap pins
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update:
+    name: Update pinned commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch latest commits
+        id: commits
+        run: |
+          php_commit=$(curl -fsL \
+            "https://api.github.com/repos/shivammathur/homebrew-php/git/ref/heads/master" \
+            | grep -o '"sha":"[^"]*"' | head -1 | cut -d'"' -f4)
+          ext_commit=$(curl -fsL \
+            "https://api.github.com/repos/shivammathur/homebrew-extensions/git/ref/heads/master" \
+            | grep -o '"sha":"[^"]*"' | head -1 | cut -d'"' -f4)
+          echo "php_commit=$php_commit" >> "$GITHUB_OUTPUT"
+          echo "ext_commit=$ext_commit" >> "$GITHUB_OUTPUT"
+
+      - name: Update darwin.sh
+        run: |
+          sed -i "s/^php_tap_commit=.*/php_tap_commit=${{ steps.commits.outputs.php_commit }}/" src/scripts/darwin.sh
+          sed -i "s/^ext_tap_commit=.*/ext_tap_commit=${{ steps.commits.outputs.ext_commit }}/" src/scripts/darwin.sh
+
+      - name: Create pull request
+        uses: step-security/create-pull-request@v7
+        with:
+          commit-message: "chore: pin brew taps to latest master commits"
+          title: "chore: update pinned brew tap commits"
+          body: |
+            Updates pinned commit SHAs for Homebrew taps to their latest master commits.
+
+            - `shivammathur/homebrew-php` → `${{ steps.commits.outputs.php_commit }}`
+            - `shivammathur/homebrew-extensions` → `${{ steps.commits.outputs.ext_commit }}`
+          branch: chore/update-brew-tap-pins
+          delete-branch: true
