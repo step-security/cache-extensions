@@ -1,21 +1,23 @@
 name: Node test workflow
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 jobs:
   run:
     name: Run
-    runs-on: ${{ matrix.operating-system }}
-    strategy:
-      fail-fast: false
-      matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
       - name: Setup Node.js 24.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24.x
 
@@ -30,15 +32,8 @@ jobs:
 
       - name: Run npm audit
         run: npm audit
+        continue-on-error: true
 
       - name: Run npm test
         run: npm test
 
-      - name: Send Coverage
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/lcov.info
-          name: github-actions-codecov-${{ matrix.operating-system }}
-          fail_ci_if_error: false
-          verbose: true

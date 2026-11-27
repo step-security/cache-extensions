@@ -4,12 +4,11 @@
 
 <p align="center">
   <a href="https://github.com/step-security/cache-extensions" title="Cache PHP extensions in GitHub Actions"><img alt="GitHub Actions status" src="https://github.com/step-security/cache-extensions/workflows/Node%20test%20workflow/badge.svg"></a>
-  <a href="https://codecov.io/gh/step-security/cache-extensions" title="Code coverage"><img alt="Codecov Code Coverage" src="https://codecov.io/gh/step-security/cache-extensions/branch/master/graph/badge.svg"></a>
   <a href="https://github.com/step-security/cache-extensions/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
   <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.7-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
 </p>
 
-Cache PHP extensions in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action has to be used along with [shivammathur/setup-php](https://github.com/shivammathur/setup-php "Setup PHP") and [actions/cache](https://github.com/actions/cache "Cache in GitHub Actions") GitHub Actions. It configures the environment required to cache PHP extensions. Refer to [Usage](#memo-usage "How to use this") section for details and example workflow.
+Cache PHP extensions in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action has to be used along with [step-security/setup-php](https://github.com/step-security/setup-php "Setup PHP") and [actions/cache](https://github.com/actions/cache "Cache in GitHub Actions") GitHub Actions. It configures the environment required to cache PHP extensions. Refer to [Usage](#memo-usage "How to use this") section for details and example workflow.
 
 ## Contents
 
@@ -21,8 +20,6 @@ Cache PHP extensions in [GitHub Actions](https://github.com/features/actions "Gi
   - [Workflow](#workflow)
   - [Thread Safe Setup](#thread-safe-setup)
 - [License](#scroll-license)
-- [Contributions](#1-contributions)
-- [Support This Project](#sparkling_heart-support-this-project)
 - [Dependencies](#package-dependencies)
 
 ## :tada: PHP Support
@@ -69,7 +66,7 @@ Cache PHP extensions in [GitHub Actions](https://github.com/features/actions "Gi
 
 ## :memo: Usage
 
-Use this GitHub Action when the extensions you are adding in [setup-php](https://github.com/shivammathur/setup-php "setup-php GitHub Action") are installed and take a long time to set up. If you are using extensions which have the result `Installed and enabled` in the logs like `pecl` extensions on `Ubuntu` or extensions which have custom support, it is recommended to use this action to cache your extensions.
+Use this GitHub Action when the extensions you are adding in [setup-php](https://github.com/step-security/setup-php "setup-php GitHub Action") are installed and take a long time to set up. If you are using extensions which have the result `Installed and enabled` in the logs like `pecl` extensions on `Ubuntu` or extensions which have custom support, it is recommended to use this action to cache your extensions.
 
 ### Inputs
 
@@ -152,7 +149,7 @@ jobs:
       key: cache-v1 # can be any string, change to clear the extension cache.
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     - name: Setup cache environment
       id: extcache
@@ -163,14 +160,14 @@ jobs:
         key: ${{ env.key }}
 
     - name: Cache extensions
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ steps.extcache.outputs.dir }}
         key: ${{ steps.extcache.outputs.key }}
         restore-keys: ${{ steps.extcache.outputs.key }}
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@v2
+      uses: step-security/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
         extensions: ${{ env.extensions }}
@@ -182,32 +179,16 @@ If you set up both `TS` and `NTS` PHP versions in your workflow, please add `${{
 
 ```yaml
 - name: Cache extensions
-  uses: actions/cache@v4
+  uses: actions/cache@v6
   with:
     path: ${{ steps.extcache.outputs.dir }}
     key: ${{ steps.extcache.outputs.key }}-${{ env.phpts }}
     restore-keys: ${{ steps.extcache.outputs.key }}-${{ env.phpts }}
 ```
 
-## :bookmark: Versioning
-
-- You can use the `v1` tag as `cache-extensions` version. It is a rolling tag and is synced with the latest minor and patch releases. With `v1` you automatically get the bug fixes, security patches, new features and support for latest PHP releases.
-- Semantic release versions can also be used. They are also rolling tags till there is a new release as we update the lists of packages installed on GitHub runners. It is recommended to [use dependabot](https://docs.github.com/en/github/administering-a-repository/keeping-your-actions-up-to-date-with-github-dependabot "Setup Dependabot with GitHub Actions") with semantic versioning to keep the actions in your workflows up to date.
-- Commit SHA can also be used, but it is not recommended to update them manually, please set up tooling like `dependabot` to update them with each release of the action.
-
 ## :scroll: License
 
 The code and documentation in this project are under the [MIT License](LICENSE "License for step-security/cache-extensions"). This project has multiple [dependencies](https://github.com/step-security/cache-extensions/network/dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
-
-## :+1: Contributions
-
-Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "step-security/cache-extensions contribution guide"). If you face any issues while using this or want to suggest a feature/improvement, create an issue [here](https://github.com/step-security/cache-extensions/issues "Issues reported").
-
-## :sparkling_heart: Support This Project
-
-This project is generously supported by many users and organisations via [GitHub Sponsors](https://github.com/sponsors/shivammathur).
-
-<a href="https://github.com/sponsors/shivammathur"><img src="https://setup-php.com/sponsors.svg?" alt="Sponsor shivammathur"></a>
 
 ## :package: Dependencies
 

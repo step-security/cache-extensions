@@ -1,21 +1,23 @@
 fetch_brew_tap() {
   tap=$1
+  commit=$2
   tap_user=$(dirname "$tap")
   tap_name=$(basename "$tap")
   mkdir -p "$tap_dir/$tap_user"
-  curl -sL "https://github.com/$tap/archive/master.tar.gz" | sudo tar -xzf - -C "$tap_dir/$tap_user"
-  if [ -d "$tap_dir/$tap_user/$tap_name-master" ]; then
-    sudo mv "$tap_dir/$tap_user/$tap_name-master" "$tap_dir/$tap_user/$tap_name"
+  curl -sL "https://github.com/$tap/archive/$commit.tar.gz" | sudo tar -xzf - -C "$tap_dir/$tap_user"
+  if [ -d "$tap_dir/$tap_user/$tap_name-$commit" ]; then
+    sudo mv "$tap_dir/$tap_user/$tap_name-$commit" "$tap_dir/$tap_user/$tap_name"
   fi
 }
 
 add_brew_tap() {
   tap=$1
+  commit=$2
   if ! [ -d "$tap_dir/$tap" ]; then
     if [ "${ImageOS:=}-${ImageVersion:=}" = "-" ]; then
       brew tap --shallow "$tap" >/dev/null 2>&1
     else
-      fetch_brew_tap "$tap" >/dev/null 2>&1
+      fetch_brew_tap "$tap" "$commit" >/dev/null 2>&1
       if ! [ -d "$tap_dir/$tap" ]; then
         brew tap --shallow "$tap" >/dev/null 2>&1
       fi
@@ -197,8 +199,8 @@ setup_dependencies() {
   IFS=' ' read -r -a extensions_array <<<"$(echo "$extensions" | sed -Ee "s/^|,\s*/ /g")"
   IFS=' ' read -r -a extensions_array <<<"$(filter_extensions "${extensions_array[@]}")"
   if [[ -n "${extensions_array[*]// /}" ]]; then
-    add_brew_tap "$php_tap"
-    add_brew_tap "$ext_tap"        
+    add_brew_tap "$php_tap" "$php_tap_commit"
+    add_brew_tap "$ext_tap" "$ext_tap_commit"        
     for extension in "${extensions_array[@]}"; do
       IFS=' ' read -r -a dependency_array <<<"$(get_dependencies "$extension")"
       libraries_array=()
@@ -237,4 +239,6 @@ brew_cellar="$brew_prefix/Cellar"
 tap_dir="$(brew --repository)"/Library/Taps
 core_tap=homebrew/homebrew-core
 php_tap=shivammathur/homebrew-php
+php_tap_commit=0880f98f109340e9a89f78bb2528372ed18a5408
 ext_tap=shivammathur/homebrew-extensions
+ext_tap_commit=505a904b116212e4ee9404808d0dd98792b5cfa6

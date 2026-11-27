@@ -1,5 +1,5 @@
 name: 'Cache PHP Extensions'
-author: shivammathur
+author: 'step-security'
 description: 'Cache PHP Extensions in GitHub Actions'
 branding:
   color: 'purple'
